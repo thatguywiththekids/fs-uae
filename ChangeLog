@@ -12,7 +12,11 @@ Version 3.1.0dev:
 * Lots of fixes to restore functionality after the merge.
 * Updated emulation core from WinUAE 4210 (big merge).
 
-Version 3.0.0dev:
+Version 3.0.1:
+
+* Fix video scaling when restoring from fullscreen on Windows.
+
+Version 3.0.0:
 
 * Show error during configure if OpenAL is not found.
 * More controller configs.
