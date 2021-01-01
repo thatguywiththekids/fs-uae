@@ -1644,8 +1644,8 @@ EXTRA_DIST = $(TESTS) $(EXTRA_TESTS) \
 	debian/rules \
 	debian/source \
 	debian/source/format \
-	dist/linux/build.py \
 	dist/arch.py \
+	dist/linux/build.py \
 	dist/linux/standalone-linux.py \
 	dist/macos/Entitlements.plist \
 	dist/macos/fs-uae-config.icns \
@@ -1654,6 +1654,7 @@ EXTRA_DIST = $(TESTS) $(EXTRA_TESTS) \
 	dist/macos/PkgInfo \
 	dist/macos/sign.py \
 	dist/macos/standalone.py \
+	dist/rpi4/configure \
 	dist/windows/clib.py \
 	dist/windows/iscc.py \
 	dist/windows/sign.py \
@@ -2018,7 +2019,7 @@ if LINUX
 	cd fs-uae-@PACKAGE_VERSION@ && fs-sdk-bionic-x86-64 ./configure
 	fs-sdk-bionic-x86-64 make -C fs-uae-@PACKAGE_VERSION@ -j4
 	fs-sdk-bionic-x86-64 make -C fs-uae-@PACKAGE_VERSION@/dist/linux
-	mv fs-uae-@PACKAGE_VERSION@/fs-uae_@PACKAGE_VERSION@_linux_x86-64.tar.xz .
+	mv fs-uae-@PACKAGE_VERSION@/FS-UAE_@PACKAGE_VERSION@_Linux_x86-64.tar.xz .
 endif
 if MACOS
 	cd fs-uae-@PACKAGE_VERSION@ && ./configure
