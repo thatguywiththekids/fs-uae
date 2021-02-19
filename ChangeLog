@@ -27,6 +27,10 @@ Version 3.9.100dev:
 * Lots of fixes to restore functionality after the merge.
 * Updated emulation core from WinUAE 4210 (big merge).
 
+Version 3.0.6:
+
+* Fixed crash in nname_to_aname [PowderedToastMan].
+
 Version 3.0.5:
 
 * Packaging change to satisfy Apple's changed notarization process (sigh).
