@@ -33,7 +33,7 @@ os_name = "linux"
 os_name_pretty = "Linux"
 
 version = sys.argv[1]
-# package_name = "fs-uae_{0}_{1}_{2}".format(version, os_name, arch)
+package_name = "fs-uae_{0}_{1}_{2}".format(version, os_name, arch)
 package_name_2 = "FS-UAE_{0}_{1}_{2}".format(version, os_name_pretty, arch)
 package_dir = "../{}/FS-UAE/{}/{}".format(os_name, os_name_pretty, arch)
 
@@ -132,10 +132,10 @@ if os_name == "steamos":
 
 if os.environ.get("PACKAGE", "") != "0":
     # s("cd {package_dir} && tar Jcfv ../../../{package_name}.tar.xz *")
-    s("tar Jcfv ../../{package_name_2}.tar.xz FS-UAE")
+    s("tar Jcfv ../../{package_name}.tar.xz FS-UAE")
+    print(package_name)
+    s("cp ../../{package_name}.tar.xz ../../{package_name_2}.tar.xz")
     print(package_name_2)
-    # s("cp ../../{package_name_2}.tar.xz ../../{package_name}.tar.xz")
-    # print(package_name_2)
 print("OK")
 
 #s("rm -Rf {dbg_package_dir}")

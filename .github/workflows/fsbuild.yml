@@ -2,9 +2,15 @@ name: Build
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
+      - dev
+      - stable
   pull_request:
-    branches: [ master ]
+    branches:
+      - master
+      - dev
+      - stable
 
 jobs:
   Linux_x86-64:
