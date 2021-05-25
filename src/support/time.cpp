@@ -224,6 +224,32 @@ void uae_deterministic_amiga_time(int *days, int *mins, int *ticks)
 
 #endif
 
+#ifdef FSUAE
+
+void uae_deterministic_amiga_time(int *days, int *mins, int *ticks)
+{
+	// FIXME: Would be nice if the netplay server could broadcast a suitable
+	// start time.
+	// FIXME: Also integrate this with battery clock emulation
+	// FIXME: This works quite well for PAL (ticks = 1/50 sec). Should tune for
+	// NTSC...
+
+	long t = vsync_counter;
+
+	int ticks_per_min = 50 * 60;
+	int ticks_per_day = 24 * 60 * ticks_per_min;
+
+	*days = t / ticks_per_day;
+	t -= *days * ticks_per_day;
+	*mins = t / ticks_per_min;
+	t -= *mins * ticks_per_min;
+	*ticks = t;
+	// Start at day one so time looks more valid for certain programs?
+	// *days += 1;
+}
+
+#endif
+
 void uae_time_init(void)
 {
 	static bool initialized = false;
