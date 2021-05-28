@@ -1,3 +1,6 @@
+#!/bin/sh
+# FIXME: Sort this branch confusion later
+set -e
 . fsdeps/system.sh
 
 fsdeps/dep/gettext
