@@ -578,6 +578,10 @@ typedef enum {
     FS_ML_KEY_AUDIOSTOP,
     FS_ML_KEY_AUDIOPLAY,
 
+    FS_ML_KEY_APP1,
+    FS_ML_KEY_APP2,
+
+    // These are not in FS-UAE 3.x
     FS_ML_KEY_F16,
     FS_ML_KEY_F17,
     FS_ML_KEY_F18,
