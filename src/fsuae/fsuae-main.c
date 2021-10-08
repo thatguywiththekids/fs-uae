@@ -1886,6 +1886,7 @@ int main(int argc, char *argv[])
         fs_emu_warning(_("No configuration file was found"));
     }
 
+#if 0
     const char *expect_version =
         fs_config_get_const_string(OPTION_EXPECT_VERSION);
     if (expect_version && strcmp(expect_version, PACKAGE_VERSION) != 0) {
@@ -1893,6 +1894,7 @@ int main(int argc, char *argv[])
                        expect_version,
                        PACKAGE_VERSION);
     }
+#endif
 
     if (fsemu) {
         fsemu_gamemode_init();
