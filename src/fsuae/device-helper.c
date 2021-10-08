@@ -203,29 +203,27 @@ static void print_events(void)
         "Mouse");
     flush_stdout();
 
-#if 0
-    int count = ManyMouse_Init();
-    if (count >= 0) {
-        for (int i = 0; i < count; i++) {
-            const char *name = ManyMouse_DeviceName(i);
-            if (name[0] == 0 || g_ascii_strcasecmp(name, "mouse") == 0) {
-                printf(
-                    "{\"type\": \"mouse-device-added\", \"device\": %d, "
-                    "\"name\": \"%s\"}\n",
-                    i + 1,
-                    "Unnamed Mouse");
-            } else {
-                printf(
-                    "{\"type\": \"mouse-device-added\", \"device\": %d, "
-                    "\"name\": \"%s\"}\n",
-                    i + 1,
-                    ManyMouse_DeviceName(i));
+    if (multiple_mice) {
+        int count = ManyMouse_Init();
+        if (count >= 0) {
+            for (int i = 0; i < count; i++) {
+                const char *name = ManyMouse_DeviceName(i);
+                if (name[0] == 0 || g_ascii_strcasecmp(name, "mouse") == 0) {
+                    printf("{\"type\": \"mouse-device-added\", \"device\": %d, "
+                           "\"name\": \"%s\"}\n",
+                           i + 1, "Unnamed Mouse");
+                } else {
+                    printf("{\"type\": \"mouse-device-added\", \"device\": %d, "
+                           "\"name\": \"%s\"}\n",
+                           i + 1, ManyMouse_DeviceName(i));
+                }
+                flush_stdout();
             }
-            flush_stdout();
+            ManyMouse_Quit();
         }
-        ManyMouse_Quit();
+    } else {
+        printf("# Support for multiple mice not enabled\n");
     }
-#endif
 
     printf("# SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_EVENTS))\n");
     flush_stdout();
@@ -471,6 +469,9 @@ int main(int argc, char *argv[])
     }
 #endif
     if (strcmp(argv[1], "--events") == 0) {
+        if (argc >= 3 && strcmp(argv[2], "--multiple-mice") == 0) {
+            multiple_mice = 1;
+        }
         print_events();
         printf("# End\n");
         flush_stdout();
