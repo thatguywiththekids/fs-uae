@@ -16,7 +16,6 @@ build68k
 /*.changes
 /chrome-sandbox
 /compile
-/*.conf
 /confdefs.h
 /config.guess
 /config.h
