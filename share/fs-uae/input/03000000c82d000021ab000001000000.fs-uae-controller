@@ -1,18 +1,6 @@
 [fs-uae-controller]
-name = SFC30 Joystick
-platform = macos
-
-[device]
-make = 8BitDo
-model = SFC30
-type = gamepad
-
-[sdl]
-guid = 03000000c82d000021ab000001000000
-buttons = 12
-hats = 1
-axes = 4
-balls = 0
+name = 8BitDo SFC30
+platform = linux
 
 [default]
 include = universal_gamepad
