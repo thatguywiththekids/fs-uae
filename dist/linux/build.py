@@ -83,8 +83,9 @@ else:
         s("cd ../.. && ./configure")
     s("make -C ../..")
 
+#FIXME: Sort out this data dir confusion
+
 s("cp -a ../../fs-uae {package_dir}/fs-uae")
-# s("cp -a ../../fs-uae.dat {package_dir}/fs-uae.dat")
 # s("PYTHONPATH=../../../fs-uae-launcher:../../../../fs-uae-launcher "
 #   "python3 -m fspy.zipfile deterministic {package_dir}/fs-uae.dat")
 s("cp -a ../../fs-uae-device-helper {package_dir}/fs-uae-device-helper")
@@ -92,12 +93,12 @@ s("cp -a ../../fs-uae-device-helper {package_dir}/fs-uae-device-helper")
 # data_dir = "FS-UAE/Data"
 data_dir = package_dir
 
-s(f"mkdir -p {data_dir}")
-s(f"cp -a ../../fs-uae.dat {data_dir}/fs-uae.dat")
+#s(f"mkdir -p {data_dir}")
+s(f"cp -a ../../fs-uae.dat {package_dir}/fs-uae.dat")
 # FIXME: Disabled for now since it references another project
 # s(f"PYTHONPATH=../../../fs-uae-launcher:../../../../fs-uae-launcher "
 #   f"python3 -m fspy.zipfile deterministic {data_dir}/fs-uae.dat")
-s(f"cp -a ../../data/* {data_dir}/")
+s(f"cp -a ../../data {data_dir}")
 
 s(f"cp -a ../../share/locale FS-UAE/Locale")
 
