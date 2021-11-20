@@ -208,7 +208,8 @@ static void auto_joystick(fs_uae_input_port *p,
                                            1,
                                            g_fs_uae_input_ports[port].device,
                                            MAX_DEVICE_NAME_LEN,
-                                           false);
+                                           false,
+                                           port);
     if (!result) {
         result = fs_emu_configure_joystick("JOYSTICK #2",
                                            type,
@@ -216,7 +217,8 @@ static void auto_joystick(fs_uae_input_port *p,
                                            1,
                                            g_fs_uae_input_ports[port].device,
                                            MAX_DEVICE_NAME_LEN,
-                                           false);
+                                           false,
+                                           port);
     }
     if (!result) {
         fs_emu_log(
@@ -301,7 +303,8 @@ static void configure_joystick_port(int port,
                                   1,
                                   p->device,
                                   MAX_DEVICE_NAME_LEN,
-                                  false);
+                                  false,
+                                  port);
 #endif
     }
 
@@ -461,7 +464,8 @@ void fs_uae_reconfigure_input_ports_host()
                                           1,
                                           NULL,
                                           0,
-                                          true);
+                                          true,
+                                          i);
 #endif
             }
         } else if (port->mode == AMIGA_JOYPORT_CD32JOY) {
@@ -477,7 +481,8 @@ void fs_uae_reconfigure_input_ports_host()
                                           1,
                                           NULL,
                                           0,
-                                          true);
+                                          true,
+                                          i);
 #endif
             }
         }
