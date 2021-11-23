@@ -36,6 +36,11 @@ Version 4.0.0dev:
 * Lots of fixes to restore functionality after the merge.
 * Updated emulation core from WinUAE 4210 (big merge).
 
+Version 3.2.x:
+
+* Backported builtin slirp from FS-UAE 4 (fixes A2065 instability).
+* Use g_get_monotonic_time() for high-resolution time on Windows as well.
+
 Version 3.1.x:
 
 * Support controller_[event] input mapping for matching all controllers.
