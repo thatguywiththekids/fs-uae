@@ -1112,7 +1112,8 @@ void fs_ml_event_loop_iteration(SDL_Event* event)
         new_event->button.device = g_fs_ml_first_mouse_index;
         new_event->button.button = event->button.button;
 #ifdef MACOSX
-        if (new_event->button.button == 1) {
+	if (fs_emu_full_keyboard_emulation() == false) {
+	  if (new_event->button.button == 1) {
             int mod = SDL_GetModState();
             if (mod & KMOD_ALT) {
                 new_event->button.button = 2;
@@ -1120,7 +1121,8 @@ void fs_ml_event_loop_iteration(SDL_Event* event)
             else if (mod & KMOD_CTRL) {
                 new_event->button.button = 3;
             }
-        }
+	  }
+	}
 #endif
         new_event->button.state = event->button.state;
     }
