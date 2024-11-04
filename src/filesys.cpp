@@ -1127,6 +1127,7 @@ static void initialize_mountinfo (void)
 				if (added)
 					break;
 			}
+#if 0
 		} else if (type == HD_CONTROLLER_TYPE_PCMCIA) {
 			if (uci->controller_type_unit == 0) {
 				gayle_add_pcmcia_sram_unit (uci);
@@ -1135,6 +1136,7 @@ static void initialize_mountinfo (void)
 				gayle_add_pcmcia_ide_unit (uci);
 				added = true;
 			}
+#endif
 		}
 		if (added)
 			allocuci (&currprefs, nr, -1);
@@ -2237,17 +2239,6 @@ int filesys_media_change (const TCHAR *rootdir, int inserted, struct uaedev_conf
 		if (uci)
 			uci->configoffset = nr;
 		return 100 + nr;
-	}
-	return 0;
-}
-
-int hardfile_added (struct uaedev_config_info *ci)
-{
-	if (ci->controller_type == HD_CONTROLLER_TYPE_PCMCIA) {
-		if (ci->controller_type_unit == 1)
-			return gayle_add_pcmcia_ide_unit(ci);
-		if (ci->controller_type_unit == 0)
-			return gayle_add_pcmcia_sram_unit(ci);
 	}
 	return 0;
 }
