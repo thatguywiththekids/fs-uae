@@ -9036,7 +9036,6 @@ int built_in_chipset_prefs (struct uae_prefs *p)
 		p->cs_mbdmac = 0;
 		p->cs_ksmirror_a8 = 0;
 		p->cs_ksmirror_e0 = 0;
-		p->cs_ciaoverlay = 0;
 		p->cs_z3autoconfig = true;
 		p->cs_unmapped_space = 1;
 		break;
@@ -9048,7 +9047,6 @@ int built_in_chipset_prefs (struct uae_prefs *p)
 		p->cs_mbdmac = 2;
 		p->cs_ksmirror_a8 = 0;
 		p->cs_ksmirror_e0 = 0;
-		p->cs_ciaoverlay = 0;
 		p->cs_z3autoconfig = true;
 		p->cs_unmapped_space = 1;
 		break;
