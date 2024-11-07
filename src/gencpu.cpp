@@ -477,7 +477,7 @@ static const char *bit_mask (int size)
 
 static void add_mmu040_movem (int movem)
 {
-	if (movem != 3)
+	if (abs(movem) != 3)
 		return;
 	printf ("\tif (mmu040_movem) {\n");
 	printf ("\t\tsrca = mmu040_movem_ea;\n");
@@ -1344,6 +1344,128 @@ static void maybeaddop_ce020 (int flags)
 }
 
 
+// Handle special MOVE.W/.L condition codes when destination write causes address error.
+static void move_68000_address_error(amodes mode, int size, int *setapdi)
+{
+	int smode = g_instr->smode;
+	int dmode = g_instr->dmode;
+
+	if (size == sz_word) {
+		// Word MOVE is relatively simply
+		int set_ccr = 0;
+		switch(smode)
+		{
+			case Dreg:
+			case Areg:
+				set_ccr = 1;
+			break;
+			case Aind:
+			case Aipi:
+			case Apdi:
+			case Ad16:
+			case PC16:
+			case Ad8r:
+			case PC8r:
+			case absw:
+			case absl:
+			case imm:
+				if (dmode == Aind || dmode == Aipi || dmode == Apdi || dmode == Ad16 || mode == Ad8r || mode == absw || mode == absl)
+					set_ccr = 1;
+			break;
+		}
+		if (dmode == Apdi) {
+			// this is buggy, address error stack frame opcode field contains next instruction opcode!
+			printf("\t\topcode = regs.irc | 0x00080000;\n");
+		}
+		if (set_ccr) {
+			printf("\t\tccr_68000_word_move_ae_normal((uae_s16)(src));\n");
+			//printf("\t\tCLEAR_CZNV();\n");
+			//printf("\t\tSET_ZFLG(((uae_s16)(src)) == 0);\n");
+			//printf("\t\tSET_NFLG(((uae_s16)(src)) < 0);\n");
+		}
+	} else {
+		// Long MOVE is much more complex..
+		int set_ccr = 0;
+		int set_high_word = 0;
+		int set_low_word = 0;
+		switch (smode)
+		{
+		case Dreg:
+		case Areg:
+		case imm:
+			if (dmode == Aind || dmode == Aipi) {
+				set_ccr = 0;
+			} else if (dmode == Ad16 || dmode == Ad8r) {
+				set_high_word = 1;
+			} else if (dmode == Apdi || dmode == absw || dmode == absl) {
+				set_ccr = 1;
+			}
+			break;
+		case Ad16:
+		case PC16:
+		case Ad8r:
+		case PC8r:
+		case absw:
+		case absl:
+			if (mode == Apdi || mode == Ad16 || mode == Ad8r || mode == absw) {
+				set_ccr = 1;
+			} else if (mode == Aind || mode == Aipi || mode == absl) {
+				set_low_word = 1;
+			} else {
+				set_low_word = 2;
+			}
+			break;
+		case Aind:
+		case Aipi:
+		case Apdi:
+			if (dmode == Aind || dmode == Aipi || dmode == absl) {
+				set_low_word = 1;
+			} else {
+				set_ccr = 1;
+			}
+			break;
+		}
+
+		if (dmode == Apdi) {
+			*setapdi = 0;
+		}
+
+		if (set_low_word == 1) {
+			// Low word: Z and N
+			printf("\t\tccr_68000_long_move_ae_LZN(src);\n");
+			//printf("\t\tCLEAR_CZNV();\n");
+			//printf("\t\tuae_s16 vsrc = (uae_s16)(src & 0xffff);\n");
+			//printf("\t\tSET_ZFLG(vsrc == 0);\n");
+			//printf("\t\tSET_NFLG(vsrc < 0);\n");
+		} else if (set_low_word == 2) {
+			// Low word: N only
+			printf("\t\tccr_68000_long_move_ae_LN(src);\n");
+			//printf("\t\tCLEAR_CZNV();\n");
+			//printf("\t\tuae_s16 vsrc = (uae_s16)(src & 0xffff);\n");
+			//printf("\t\tSET_NFLG(vsrc < 0);\n");
+		} else if (set_high_word) {
+			// High word: N and Z clear.
+			printf("\t\tccr_68000_long_move_ae_HNZ(src);\n");
+			//printf("\t\tuae_s16 vsrc = (uae_s16)(src >> 16);\n");
+			//printf("\t\tif(vsrc < 0) {\n");
+			//printf("\t\t\tSET_NFLG(1);\n");
+			//printf("\t\t\tSET_ZFLG(0);\n");
+			//printf("\t\t} else if (vsrc) {\n");
+			//printf("\t\t\tSET_NFLG(0);\n");
+			//printf("\t\t\tSET_ZFLG(0);\n");
+			//printf("\t\t} else {\n");
+			//printf("\t\t\tSET_NFLG(0);\n");
+			//printf("\t\t}\n");
+		} else if (set_ccr) {
+			// Set normally.
+			printf("\t\tccr_68000_long_move_ae_normal(src);\n");
+			//printf("\t\tCLEAR_CZNV();\n");
+			//printf("\t\tSET_ZFLG((src) == 0);\n");
+			//printf("\t\tSET_NFLG((src) < 0);\n");
+		}
+	}
+}
+
 /* getv == 1: fetch data; getv != 0: check for odd address. If movem != 0,
 * the calling routine handles Apdi and Aipi modes.
 * gb-- movem == 2 means the same thing but for a MOVE16 instruction */
@@ -1665,8 +1787,10 @@ static void genamode2x (amodes mode, const char *reg, wordsizes size, const char
 	}
 
 	// check possible address error (if 68000/010 and enabled)
-	if ((using_prefetch || using_ce) && using_exception_3 && getv != 0 && size != sz_byte) {
-		printf ("\tif (%sa & 1) {\n", name);
+	if ((using_prefetch || using_ce) && using_exception_3 && getv != 0 && size != sz_byte && !movem) {
+		int setapdiback = 0;
+
+		printf("\tif (%sa & 1) {\n", name);
 
 		if (g_instr->mnemo == i_ADDX || g_instr->mnemo == i_SUBX) {
 			// ADDX/SUBX special case
@@ -1675,17 +1799,33 @@ static void genamode2x (amodes mode, const char *reg, wordsizes size, const char
 			}
 		} else if (mode == Apdi) {
 			// 68000 decrements register first, then checks for address error
-			printf("\t\tm68k_areg (regs, %s) = %sa;\n", reg, name);
+			setapdiback = 1;
 		}
 
 		if (exception_pc_offset)
 			incpc("%d", exception_pc_offset);
 
+		if (g_instr->mnemo == i_MOVE) {
+			if (getv == 2) {
+				move_68000_address_error(mode, size, &setapdiback);
+			}
+		}
+
+		if (setapdiback) {
+			printf("\t\tm68k_areg (regs, %s) = %sa;\n", reg, name);
+		}
+
+		// PC-relative: FC=2
+		if (getv == 1 && (g_instr->smode == PC16 || g_instr->smode == PC8r)) {
+			printf("\t\topcode |= 0x01020000;\n");
+		}
+
 		// MOVE.L EA,-(An) causing address error: stacked value is original An - 2, not An - 4.
 		if ((flags & (GF_REVERSE | GF_REVERSE2)) && size == sz_long && mode == Apdi)
 			printf("\t\t%sa += %d;\n", name, flags & GF_REVERSE2 ? -2 : 2);
 
-		printf ("\t\texception3_%s(opcode, %sa);\n", getv == 2 ? "write" : "read", name);
+		printf("\t\texception3_%s(opcode, %sa);\n", getv == 2 ? "write" : "read", name);
+
 		printf ("\t\tgoto %s;\n", endlabelstr);
 		printf ("\t}\n");
 		need_endlabel = 1;
@@ -2301,6 +2441,32 @@ static void movem_mmu030 (const char *code, int size, bool put, bool aipi, bool 
 	}
 }
 
+static void movem_ex3(int write)
+{
+	if ((using_prefetch || using_ce) && using_exception_3) {
+		if (write) {
+			// MOVEM write to memory won't generate address error
+			// exception if mask is zero and EA is odd.
+			printf("\tif ((amask || dmask) && (srca & 1)) {\n");
+			// MOVE.L EA,-(An) causing address error: stacked value is original An - 2, not An - 4.
+			if (g_instr->dmode == Apdi)
+				printf("\t\tsrca -= 2;\n");
+		} else {
+			// MOVEM from memory will generate address error
+			// exception if mask is zero and EA is odd.
+			printf("\tif (srca & 1) {\n");
+			if (g_instr->dmode == PC16 || g_instr->dmode == PC8r) {
+				printf("\t\topcode |= 0x01020000;\n");
+			}
+		}
+		printf("\t\texception3_%s(opcode, srca);\n", write ? "write" : "read");
+		printf("\t\tgoto %s;\n", endlabelstr);
+		printf("\t}\n");
+		need_endlabel = 1;
+	}
+}
+
+
 static void genmovemel (uae_u16 opcode)
 {
 	char getcode[100];
@@ -2314,7 +2480,8 @@ static void genmovemel (uae_u16 opcode)
 	count_read += table68k[opcode].size == sz_long ? 2 : 1;
 	printf ("\tuae_u16 mask = %s;\n", gen_nextiword (0));
 	printf ("\tuae_u32 dmask = mask & 0xff, amask = (mask >> 8) & 0xff;\n");
-	genamode (NULL, table68k[opcode].dmode, "dstreg", table68k[opcode].size, "src", 2, mmu040_special_movem (opcode) ? 3 : 1, GF_MOVE);
+	genamode (NULL, table68k[opcode].dmode, "dstreg", table68k[opcode].size, "src", 2, mmu040_special_movem (opcode) ? -3 : -1, GF_MOVE);
+	movem_ex3(0);
 	addcycles_ce020 (8 - 2);
 	start_brace ();
 	if (using_mmu == 68030) {
@@ -2349,7 +2516,8 @@ static void genmovemel_ce (uae_u16 opcode)
 	printf ("\tuae_u32 dmask = mask & 0xff, amask = (mask >> 8) & 0xff;\n");
 	if (table68k[opcode].dmode == Ad8r || table68k[opcode].dmode == PC8r)
 		addcycles000 (2);
-	genamode (NULL, table68k[opcode].dmode, "dstreg", table68k[opcode].size, "src", 2, 1, GF_AA | GF_MOVE);
+	genamode (NULL, table68k[opcode].dmode, "dstreg", table68k[opcode].size, "src", 2, -1, GF_AA | GF_MOVE);
+	movem_ex3(0);
 	start_brace ();
 	if (table68k[opcode].size == sz_long) {
 		printf ("\twhile (dmask) {\n");
@@ -2423,6 +2591,7 @@ static void genmovemle (uae_u16 opcode)
 	} else {
 		if (table68k[opcode].dmode == Apdi) {
 			printf ("\tuae_u16 amask = mask & 0xff, dmask = (mask >> 8) & 0xff;\n");
+			movem_ex3(1);
 			if (!using_mmu)
 				printf ("\tint type = get_cpu_model () >= 68020;\n");
 			printf ("\twhile (amask) {\n");
@@ -2463,6 +2632,7 @@ static void genmovemle_ce (uae_u16 opcode)
 	if (table68k[opcode].size == sz_long) {
 		if (table68k[opcode].dmode == Apdi) {
 			printf ("\tuae_u16 amask = mask & 0xff, dmask = (mask >> 8) & 0xff;\n");
+			movem_ex3(1);
 			printf ("\twhile (amask) {\n");
 			printf ("\t\t%s (srca - 2, m68k_areg (regs, movem_index2[amask]));\n", dstw);
 			printf ("\t\t%s (srca - 4, m68k_areg (regs, movem_index2[amask]) >> 16);\n", dstw);
@@ -2480,6 +2650,7 @@ static void genmovemle_ce (uae_u16 opcode)
 			printf ("\tm68k_areg (regs, dstreg) = srca;\n");
 		} else {
 			printf ("\tuae_u16 dmask = mask & 0xff, amask = (mask >> 8) & 0xff;\n");
+			movem_ex3(1);
 			printf ("\twhile (dmask) {\n");
 			printf ("\t\t%s (srca, m68k_dreg (regs, movem_index1[dmask]) >> 16);\n", dstw);
 			printf ("\t\t%s (srca + 2, m68k_dreg (regs, movem_index1[dmask]));\n", dstw);
@@ -2498,6 +2669,7 @@ static void genmovemle_ce (uae_u16 opcode)
 	} else {
 		if (table68k[opcode].dmode == Apdi) {
 			printf ("\tuae_u16 amask = mask & 0xff, dmask = (mask >> 8) & 0xff;\n");
+			movem_ex3(1);
 			printf ("\twhile (amask) {\n");
 			printf ("\t\tsrca -= %d;\n", size);
 			printf ("\t\t%s (srca, m68k_areg (regs, movem_index2[amask]));\n", dstw);
@@ -2513,6 +2685,7 @@ static void genmovemle_ce (uae_u16 opcode)
 			printf ("\tm68k_areg (regs, dstreg) = srca;\n");
 		} else {
 			printf ("\tuae_u16 dmask = mask & 0xff, amask = (mask >> 8) & 0xff;\n");
+			movem_ex3(1);
 			printf ("\twhile (dmask) {\n");
 			printf ("\t\t%s (srca, m68k_dreg (regs, movem_index1[dmask]));\n", dstw);
 			printf ("\t\tsrca += %d;\n", size);
