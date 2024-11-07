@@ -963,10 +963,16 @@ error:
 		zfile_fclose (f);
 }
 
-void savestate_restore_finish (void)
+void savestate_restore_final(void)
+{
+    restore_akiko_final();
+    restore_cdtv_final();
+}
+
+bool savestate_restore_finish (void)
 {
 	if (!isrestore ())
-		return;
+		return false;
 #ifdef FSUAE
 	printf("savestate_restore_finish\n");
 #endif
@@ -1000,6 +1006,7 @@ void savestate_restore_finish (void)
 #ifdef FSUAE
     uae_callback(uae_on_restore_state_finished, savestate_fname);
 #endif
+    return true;
 }
 
 /* 1=compressed,2=not compressed,3=ram dump,4=audio dump */
