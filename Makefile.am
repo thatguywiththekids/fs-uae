@@ -278,6 +278,7 @@ libuae_a_SOURCES = \
 	src/debugmem.cpp \
 	src/def_icons.cpp \
 	src/devices.cpp \
+	src/disasm.cpp \
 	src/disk.cpp \
 	src/diskutil.cpp \
 	src/dlopen.cpp \
@@ -336,6 +337,7 @@ libuae_a_SOURCES = \
 	src/include/debug.h \
 	src/include/debugmem.h \
 	src/include/devices.h \
+	src/include/disasm.h \
 	src/include/disk.h \
 	src/include/diskutil.h \
 	src/include/dongle.h \
