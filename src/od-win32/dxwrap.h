@@ -81,6 +81,7 @@ struct MultiDisplay {
 #ifdef FSUAE
 #else
 	GUID ddguid;
+	HMONITOR monitor;
 #endif
 	TCHAR *adaptername, *adapterid, *adapterkey;
 	TCHAR *monitorname, *monitorid;
