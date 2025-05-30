@@ -22,6 +22,9 @@
 static int ethernet_paused;
 
 #else
+#ifdef WITH_SLIRP
+#include "../slirp/slirp.h"
+#endif
 
 #include <stdio.h>
 
