@@ -1,5 +1,5 @@
 #!/bin/sh
-# FIXME: Sort this branch confusion later
+
 set -e
 . fsdeps/system.sh
 
@@ -8,11 +8,11 @@ fsdeps/packages/glib
 fsdeps/packages/libmpeg2
 fsdeps/packages/libpng
 fsdeps/packages/libsamplerate
-if [ "$SYSTEM_OS" = "macOS" ]; then
-echo "Skipping OpenGL on macOS"
-else
-fsdeps/packages/openal
-fi
+#if [ "$SYSTEM_OS" = "macOS" ]; then
+#echo "Skipping OpenAL on macOS"
+#else
+#fsdeps/packages/openal
+#fi
 fsdeps/packages/portmidi
 fsdeps/packages/SDL2
 fsdeps/packages/SDL2_ttf
