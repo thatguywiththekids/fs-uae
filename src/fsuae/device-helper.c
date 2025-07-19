@@ -1,4 +1,3 @@
-// #define DEVICE_HELPER_MANYMOUSE
 #define DEVICE_HELPER_PORTMIDI 1
 
 #ifdef HAVE_CONFIG_H
@@ -92,17 +91,13 @@ static char *joystick_config_name(const char *name, int with_number)
     return result;
 }
 
-//FIXME: This might need sorting out. Choose ONE approach!
-int multiple_mice = 0;
-#ifdef DEVICE_HELPER_MANYMOUSE
 int ManyMouse_Init(void);
 void ManyMouse_Quit(void);
 const char *ManyMouse_DeviceName(unsigned int index);
 #ifdef MACOSX
-multiple_mice = 0;
+int multiple_mice = 0;
 #else
-multiple_mice = 1;
-#endif
+int multiple_mice = 1;
 #endif
 
 static void get_joystick_info(SDL_Joystick *joystick,
@@ -176,7 +171,6 @@ static int list_joysticks(void)
     printf("# Mice:\n");
     printf("M: Mouse\n");
     flush_stdout();
-#ifdef DEVICE_HELPER_MANYMOUSE
     if (multiple_mice) {
         int count = ManyMouse_Init();
         if (count >= 0) {
@@ -195,7 +189,6 @@ static int list_joysticks(void)
     } else {
         printf("# Support for multiple mice not enabled\n");
     }
-#endif
     printf("# Joysticks:\n");
     flush_stdout();
     if (getenv("FSGS_FAKE_JOYSTICKS")) {
@@ -291,7 +284,6 @@ static int print_events(void)
         "Mouse");
     flush_stdout();
 
-#ifdef DEVICE_HELPER_MANYMOUSE
     if (multiple_mice) {
         int count = ManyMouse_Init();
         if (count >= 0) {
@@ -313,7 +305,6 @@ static int print_events(void)
     } else {
         printf("# Support for multiple mice not enabled\n");
     }
-#endif
 
     error = initialize_sdl2();
     if (error) {
