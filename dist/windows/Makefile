@@ -22,8 +22,6 @@ progdir:
 	cp -a ../../fs-uae.exe $(fs_uae_dir)/
 	cp -a ../../fs-uae-device-helper.exe $(fs_uae_dir)/
 
-	#FIXME: Sort out this data dir confusion
-
 	# mkdir -p FS-UAE/Data
 	# cp -a ../../fs-uae.dat FS-UAE/Data
 	# cp -a ../../data/* FS-UAE/Data

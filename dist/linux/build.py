@@ -23,7 +23,7 @@ os_name = "linux"
 os_name_pretty = "Linux"
 
 version = sys.argv[1]
-package_name = "fs-uae_{0}_{1}_{2}".format(version, os_name, arch)
+# package_name = "fs-uae_{0}_{1}_{2}".format(version, os_name, arch)
 package_name_2 = "FS-UAE_{0}_{1}_{2}".format(version, os_name_pretty, arch)
 package_dir = "../{}/FS-UAE/{}/{}".format(os_name, os_name_pretty, arch)
 
@@ -83,9 +83,8 @@ else:
         s("cd ../.. && ./configure")
     s("make -C ../..")
 
-#FIXME: Sort out this data dir confusion
-
 s("cp -a ../../fs-uae {package_dir}/fs-uae")
+# s("cp -a ../../fs-uae.dat {package_dir}/fs-uae.dat")
 # s("PYTHONPATH=../../../fs-uae-launcher:../../../../fs-uae-launcher "
 #   "python3 -m fspy.zipfile deterministic {package_dir}/fs-uae.dat")
 s("cp -a ../../fs-uae-device-helper {package_dir}/fs-uae-device-helper")
@@ -93,12 +92,12 @@ s("cp -a ../../fs-uae-device-helper {package_dir}/fs-uae-device-helper")
 # data_dir = "FS-UAE/Data"
 data_dir = package_dir
 
-#s(f"mkdir -p {data_dir}")
-s(f"cp -a ../../fs-uae.dat {package_dir}/fs-uae.dat")
+s(f"mkdir -p {data_dir}")
+s(f"cp -a ../../fs-uae.dat {data_dir}/fs-uae.dat")
 # FIXME: Disabled for now since it references another project
 # s(f"PYTHONPATH=../../../fs-uae-launcher:../../../../fs-uae-launcher "
 #   f"python3 -m fspy.zipfile deterministic {data_dir}/fs-uae.dat")
-s(f"cp -a ../../data {data_dir}")
+s(f"cp -a ../../data/* {data_dir}/")
 
 s(f"cp -a ../../share/locale FS-UAE/Locale")
 
@@ -123,10 +122,10 @@ if os_name == "steamos":
 
 if os.environ.get("PACKAGE", "") != "0":
     # s("cd {package_dir} && tar Jcfv ../../../{package_name}.tar.xz *")
-    s("tar Jcfv ../../{package_name}.tar.xz FS-UAE")
-    print(package_name)
-    s("cp ../../{package_name}.tar.xz ../../{package_name_2}.tar.xz")
+    s("tar Jcfv ../../{package_name_2}.tar.xz FS-UAE")
     print(package_name_2)
+    # s("cp ../../{package_name_2}.tar.xz ../../{package_name}.tar.xz")
+    # print(package_name_2)
 print("OK")
 
 #s("rm -Rf {dbg_package_dir}")
