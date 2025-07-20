@@ -26,6 +26,7 @@ jobs:
       - name: Install deb packages
         run: >-
           sudo apt install
+          automake
           dos2unix
           gettext
           intltool
