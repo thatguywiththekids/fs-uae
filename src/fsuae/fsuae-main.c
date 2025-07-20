@@ -1451,9 +1451,10 @@ static const char *overlay_names[] = {
 
 // clang-format off
 #define COPYRIGHT_NOTICE                                                      \
-"FS-UAE %s %s %s\n"                                                           \
+"ForkUAE %s %s %s\n"                                                           \
 "\n"                                                                          \
-"Copyright 2011-2021 Frode Solheim and others.\n"                             \
+"Copyright 2025 Johan Gill.\n"                                                \
+"Based on FS-UAE, Copyright 2011-2025 Frode Solheim and others.\n"                             \
 "Based on %s, Copyright 1999-2021 Toni Wilen and others.\n"                   \
 "Based on UAE, Copyright 1995-2002 Bernd Schmidt and others.\n"               \
 "\n"                                                                          \
@@ -1832,8 +1833,8 @@ int main(int argc, char *argv[])
     fsemu_titlebar_update();
 #endif
 
-    fsemu_set_emulator_name("FS-UAE");
-    fsemu_window_set_title("FS-UAE");
+    fsemu_set_emulator_name("ForkUAE");
+    fsemu_window_set_title("ForkUAE");
     // fsemu_video_set_renderer(renderer);
     // fsemu_startupinfo_set_emulator_name("FS-UAE");
     // fsemu_startupinfo_set_emulator_fork_info("Mednafen");
