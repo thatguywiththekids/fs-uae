@@ -16,10 +16,12 @@ rm -Rf build/env/_temp && mkdir build/env/_temp && cd build/env/_temp
 tar xf ../_sources/$PACKAGE.tar.gz
 cd $PACKAGE
 
-if [ "$SYSTEM_ARCH" = "ARM64" ]; then
-# Requires more up2date config.sub to detect platform
-automake --add-missing --copy --force-missing || true
-fi
+#if [ "$SYSTEM_ARCH" = "ARM64" ]; then
+## Requires more up2date config.sub to detect platform
+#automake --add-missing --copy --force-missing || true
+#fi
+
+./bootstrap
 
 # Using -std=gnu89 to avoid some inline problems causing linker errors
 ./configure --prefix=$PREFIX CFLAGS="-std=gnu89 -O2"
