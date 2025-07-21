@@ -3,17 +3,17 @@
 set -e
 
 PACKAGE=libmpeg2-master
-CHECKSUM=f0a620cf3eac3a4991345c083c4c683bdc5d82a957d73d61c5736084517f0519
+CHECKSUM=9115136496dbdae79eef19becdd75593cc1020166b0b8052f676689402152556
 REVISION=0
 
 . build/env/scripts/package.sh
 
 build/env/scripts/download.py \
-https://code.videolan.org/videolan/libmpeg2/-/archive/master/${PACKAGE}.tar.gz \
+https://github.com/thatguywiththekids/libmpeg2/archive/refs/heads/master.zip \
 sha256:$CHECKSUM
 
 rm -Rf build/env/_temp && mkdir build/env/_temp && cd build/env/_temp
-tar xf ../_sources/$PACKAGE.tar.gz
+unzip ../_sources/master.zip
 cd $PACKAGE
 
 #if [ "$SYSTEM_ARCH" = "ARM64" ]; then
